@@ -1,4 +1,4 @@
-name: Dockerized Appication - Main branch
+name: Dockerized Appication - Hotfix release
 on:
   workflow_call:
     inputs:
@@ -6,6 +6,9 @@ on:
         required: true
         type: string
       repository:
+        required: true
+        type: string
+      app:
         required: true
         type: string
       spacelift-organization:
@@ -44,6 +47,7 @@ jobs:
     with:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
+      app: ${{ inputs.app }}
     secrets:
       ecr-iam-role: ${{ secrets.ecr-iam-role }}
       registry: "${{ secrets.registry }}"

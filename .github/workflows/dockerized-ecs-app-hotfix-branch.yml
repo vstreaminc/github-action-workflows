@@ -1,0 +1,79 @@
+name: Dockerized Appication - Hotfix branch
+on:
+  workflow_call:
+    inputs:
+      organization:
+        required: true
+        type: string
+      repository:
+        required: true
+        type: string
+      open:
+        required: true
+        type: boolean
+        default: true
+      labels:
+        required: true
+        type: string
+      ref:
+        required: true
+        type: string
+      spacelift-organization:
+        description: "Spacelift organization"
+        type: string
+        required: true
+    secrets:
+      ecr-iam-role:
+        description: "ECR IAM role arn"
+        required: true
+      secret-outputs-passphrase:
+        description: "Passphrase for secret outputs"
+        required: true
+      registry:
+        description: "Docker registry"
+        required: true
+      github-private-actions-pat:
+        required: true
+      spacelift-api-key-id:
+        required: true
+      spacelift-api-key-secret:
+        required: true
+
+permissions:
+  pull-requests: write
+  deployments: write
+  id-token: write
+  contents: read
+
+jobs:
+  ci:
+    uses: vstreaminc/github-action-workflows/.github/workflows/ci-dockerized-app-build.yml@main
+    if: ${{ inputs.open }}
+    with:
+      organization: ${{ inputs.organization }}
+      repository: ${{ inputs.repository }}
+    secrets:
+      ecr-iam-role: ${{ secrets.ecr-iam-role }}
+      registry: "${{ secrets.registry }}"
+      secret-outputs-passphrase: "${{ secrets.secret-outputs-passphrase }}"
+
+  cd:
+    uses: vstreaminc/github-action-workflows/.github/workflows/cd-preview-ecs.yml@main
+    needs: [ci]
+    if: ${{ always() }}
+    with:
+      image: ${{ needs.ci.outputs.image }}
+      tag: ${{ needs.ci.outputs.tag }}
+      repository: ${{ inputs.repository }}
+      open: ${{ inputs.open }}
+      labels: ${{ inputs.labels }}
+      ref: ${{ inputs.ref }}
+      spacelift-organization: ${{ inputs.spacelift-organization }}
+      exclusive: true
+      env-label: |
+        hotfix: deploy
+    secrets:
+      secret-outputs-passphrase: "${{ secrets.secret-outputs-passphrase }}"
+      github-private-actions-pat: "${{ secrets.github-private-actions-pat }}"
+      spacelift-api-key-id: "${{ secrets.spacelift-api-key-id }}"
+      spacelift-api-key-secret: "${{ secrets.spacelift-api-key-secret }}"

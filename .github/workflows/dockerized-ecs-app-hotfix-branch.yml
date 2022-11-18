@@ -8,6 +8,9 @@ on:
       repository:
         required: true
         type: string
+      app:
+        required: true
+        type: string
       open:
         required: true
         type: boolean
@@ -52,6 +55,7 @@ jobs:
     with:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
+      app: ${{ inputs.app }}
     secrets:
       ecr-iam-role: ${{ secrets.ecr-iam-role }}
       registry: "${{ secrets.registry }}"
@@ -65,6 +69,7 @@ jobs:
       image: ${{ needs.ci.outputs.image }}
       tag: ${{ needs.ci.outputs.tag }}
       repository: ${{ inputs.repository }}
+      app: ${{ inputs.app }}
       open: ${{ inputs.open }}
       labels: ${{ inputs.labels }}
       ref: ${{ inputs.ref }}

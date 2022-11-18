@@ -25,6 +25,9 @@ on:
         description: "Spacelift organization"
         type: string
         required: true
+      force-build:
+        required: true
+        type: boolean
     secrets:
       ecr-iam-role:
         description: "ECR IAM role arn"
@@ -56,7 +59,7 @@ jobs:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
       app: ${{ inputs.app }}
-      force-build: true
+      force-build: ${{ inputs.force-build }}
     secrets:
       ecr-iam-role: ${{ secrets.ecr-iam-role }}
       registry: "${{ secrets.registry }}"

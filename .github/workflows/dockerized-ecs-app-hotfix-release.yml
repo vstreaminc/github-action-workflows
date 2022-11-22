@@ -118,8 +118,8 @@ jobs:
       - name: Promote Docker image
         uses: EuphoricSystems/docker-promote-image@1.0.0
         with:
-          src: ${{ jobs.image.outputs.out }}:${{ needs.ci.outputs.tag }}
-          destinations: ${{ jobs.image.outputs.out }}:${{ needs.release.outputs.version }}
+          src: ${{ steps.image.outputs.out }}:${{ needs.ci.outputs.tag }}
+          destinations: ${{ steps.image.outputs.out }}:${{ needs.release.outputs.version }}
 
     outputs:
       image: ${{ needs.ci.outputs.image }}

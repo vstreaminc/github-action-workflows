@@ -66,50 +66,22 @@ jobs:
       github-private-actions-pat: ${{ secrets.github-private-actions-pat }}
 
   promote:
-    runs-on: ["self-hosted"]
-    needs: [ release, ci ]
-    permissions:
-      contents: write
-    steps:
-      - uses: cloudposse/github-action-secret-outputs@0.1.0
-        id: image
-        with:
-          secret: ${{ secrets.secret-outputs-passphrase }}
-          op: decode
-          in: ${{ needs.ci.outputs.image }}
-
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Login
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ secrets.registry }}
-
-      - name: Promote Docker image
-        uses: EuphoricSystems/docker-promote-image@1.0.0
-        with:
-          src: ${{ steps.image.outputs.out }}:${{ needs.ci.outputs.tag }}
-          destinations: ${{ steps.image.outputs.out }}:${{ needs.release.outputs.version }}
-
-    outputs:
-      image: ${{ needs.ci.outputs.image }}
-      tag: ${{ needs.release.outputs.version }}
+    needs: [release]
+    uses: vstreaminc/github-action-workflows/.github/workflows/ci-dockerized-app-promote.yml@main
+    with:
+      organization: ${{ inputs.organization }}
+      repository: ${{ inputs.repository }}
+      app: ${{ inputs.app }}
+      version: ${{ needs.release.outputs.version }}
+    secrets:
+      ecr-iam-role: ${{ secrets.ecr-iam-role }}
+      registry: "${{ secrets.registry }}"
+      secret-outputs-passphrase: "${{ secrets.secret-outputs-passphrase }}"
 
   reintegrate:
-    runs-on: ubuntu-latest
-    needs: [ release, promote ]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Create reingtegration PR
-        uses: devops-infra/action-pull-request@v0.4.2
-        with:
-          github_token: ${{ secrets.github-private-actions-pat }}
-          target_branch: ${{ inputs.default_branch }}
-          title: Reintegrate ${{ needs.release.outputs.version }} hotfix into main branch
-          template: .github/REINTEGRATE_PULL_REQUEST_TEMPLATE.md
-          get_diff: true
+    uses: vstreaminc/github-action-workflows/.github/workflows/controller-hotfix-reintegrate.yml@main
+    with:
+      ref: ${{ github.sha }}
+      target_branch: ${{ inputs.default_branch }}
+    secrets:
+      github-private-actions-pat: ${{ secrets.github-private-actions-pat }}

@@ -74,7 +74,12 @@ jobs:
         run: |
           git fetch --tags --force
           git describe --always --tags --abbrev=0 ${{ github.sha }}
-          VERSION=$(git describe --always --tags --abbrev=0  ${{ github.sha }})
+          ## Return a prev tag that points to any commit prev to the current.
+          ## If no tag - return SHA
+          ANY_VERSION=$(git describe --always --tags --abbrev=0  ${{ github.sha }})
+          ## Get latest tag pointing to the specific commit
+          ## If no tag - return SHA
+          VERSION=$(( echo $(ANY_VERSION) && git tag --points-at $(ANY_VERSION) ) | tail -1)
           echo "::set-output name=version::${VERSION}"
 
       - name: Get next minor version

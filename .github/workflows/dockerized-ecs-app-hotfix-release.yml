@@ -59,45 +59,11 @@ jobs:
 
   release:
     needs: [ci]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Get Previous tag
-        id: previoustag
-        shell: sh
-        run: |
-          git fetch --tags --force
-          git describe --always --tags --abbrev=0 ${{ github.sha }}
-          ## Return a prev tag that points to any commit prev to the current.
-          ## If no tag - return SHA
-          ANY_VERSION=$(git describe --always --tags --abbrev=0  ${{ github.sha }})
-          ## Get latest tag pointing to the specific commit
-          ## If no tag - return SHA
-          VERSION=$( ( echo ${ANY_VERSION} && git tag --points-at ${ANY_VERSION} ) | tail -1)
-          echo "::set-output name=version::${VERSION}"
-
-      - name: Get next minor version
-        id: semvers
-        uses: "WyriHaximus/github-action-next-semvers@v1"
-        with:
-          version: ${{ steps.previoustag.outputs.version }}
-
-      - name: Create release
-        uses: ncipollo/release-action@v1
-        with:
-          tag: ${{ steps.semvers.outputs.patch }}
-          commit: ${{ github.sha }}
-          generateReleaseNotes: true
-          token: ${{ github.token }}
-
-    outputs:
-      version: ${{ steps.semvers.outputs.patch }}
+    uses: vstreaminc/github-action-workflows/.github/workflows/controller-hotfix-release.yml@main
+    with:
+      ref: ${{ github.sha }}
+    secrets:
+      github-private-actions-pat: ${{ secrets.github-private-actions-pat }}
 
   promote:
     runs-on: ["self-hosted"]

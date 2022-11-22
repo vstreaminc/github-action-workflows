@@ -20,6 +20,9 @@ on:
         required: true
         type: string
         default: main
+      force-build:
+        required: true
+        type: boolean
     secrets:
       ecr-iam-role:
         description: "ECR IAM role arn"
@@ -48,12 +51,14 @@ jobs:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
       app: ${{ inputs.app }}
+      force-build: ${{ inputs.force-build }}
     secrets:
       ecr-iam-role: ${{ secrets.ecr-iam-role }}
       registry: "${{ secrets.registry }}"
       secret-outputs-passphrase: "${{ secrets.secret-outputs-passphrase }}"
 
   release:
+    needs: [ci]
     runs-on: ubuntu-latest
     permissions:
       contents: write

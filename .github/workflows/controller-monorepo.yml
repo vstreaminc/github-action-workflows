@@ -6,6 +6,9 @@ on:
         required: true
         type: string
     outputs:
+      apps:
+        description: "Applications"
+        value: ${{ jobs.monorepo.outputs.apps }}
       changes:
         description: "Changed applications"
         value: ${{ jobs.monorepo.outputs.changes }}
@@ -22,7 +25,7 @@ jobs:
 
       - name: Monorepo controller
         id: controller
-        uses: cloudposse/github-action-monorepo-random-controller@0.1.0
+        uses: cloudposse/github-action-monorepo-random-controller@0.1.1
         with:
           dir: ${{ inputs.dir }}
 

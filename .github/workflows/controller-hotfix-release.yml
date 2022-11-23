@@ -8,9 +8,9 @@ on:
     outputs:
       version:
         description: Release version
-        value: ${{ jobs.release.outputs.version }}
+        value: ${{ jobs.create.outputs.version }}
 jobs:
-  release:
+  create:
     runs-on: ["self-hosted"]
     steps:
       - name: Checkout

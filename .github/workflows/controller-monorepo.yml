@@ -30,5 +30,6 @@ jobs:
           dir: ${{ inputs.dir }}
 
     outputs:
+      apps: ${{ steps.controller.outputs.apps }}
       changes: ${{ steps.controller.outputs.changes }}
       no-changes: ${{ steps.controller.outputs.no-changes }}

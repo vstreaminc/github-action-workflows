@@ -5,9 +5,6 @@ on:
       ref:
         required: true
         type: string
-    secrets:
-      github-private-actions-pat:
-        required: true
     outputs:
       version:
         description: Release version
@@ -48,7 +45,7 @@ jobs:
           tag: ${{ steps.semvers.outputs.patch }}
           commit: ${{ inputs.ref }}
           generateReleaseNotes: true
-          token: ${{ secrets.github-private-actions-pat }}
+          token: ${{ github.token }}
 
     outputs:
       version: ${{ steps.semvers.outputs.patch }}

@@ -5,9 +5,6 @@ on:
       version:
         required: true
         type: string
-    secrets:
-      github-private-actions-pat:
-        required: true
 jobs:
   release-branch:
     runs-on: ["self-hosted"]
@@ -18,7 +15,7 @@ jobs:
       - name: Create branch for specific version
         uses: satya-500/create-branch-from-tag@v1.0
         env:
-          GITHUB_TOKEN: ${{ secrets.github-private-actions-pat }}
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           branch: release/${{ inputs.version }}
           from: tags/${{ inputs.version }}

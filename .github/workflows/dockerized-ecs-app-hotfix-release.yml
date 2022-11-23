@@ -8,7 +8,7 @@ on:
       repository:
         required: true
         type: string
-      app:
+      apps:
         required: true
         type: string
       spacelift-organization:

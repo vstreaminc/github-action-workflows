@@ -11,9 +11,9 @@ on:
     outputs:
       version:
         description: Release version
-        value: ${{ steps.semvers.outputs.patch }}
+        value: ${{ jobs.release.outputs.version }}
 jobs:
-  release-branch:
+  release:
     runs-on: ["self-hosted"]
     steps:
       - name: Checkout
@@ -50,4 +50,5 @@ jobs:
           generateReleaseNotes: true
           token: ${{ secrets.github-private-actions-pat }}
 
-
+    outputs:
+      version: ${{ steps.semvers.outputs.patch }}

@@ -11,18 +11,14 @@ on:
       apps:
         required: true
         type: string
-      spacelift-organization:
-        description: "Spacelift organization"
-        type: string
+      contains_changes:
         required: true
+        type: string
       default_branch:
         description: "Default branch in the repo"
         required: true
         type: string
         default: main
-      force-build:
-        required: true
-        type: boolean
     secrets:
       ecr-iam-role:
         description: "ECR IAM role arn"
@@ -35,10 +31,6 @@ on:
         required: true
       github-private-actions-pat:
         required: true
-      spacelift-api-key-id:
-        required: true
-      spacelift-api-key-secret:
-        required: true
 
 permissions:
   contents: write
@@ -47,11 +39,15 @@ permissions:
 jobs:
   ci:
     uses: vstreaminc/github-action-workflows/.github/workflows/ci-dockerized-app-build.yml@main
+    if: ${{ inputs.apps != '[]'  }}
+    strategy:
+      matrix:
+        app: ${{ fromJson(inputs.apps) }}
     with:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
-      app: ${{ inputs.app }}
-      force-build: ${{ inputs.force-build }}
+      app: ${{ matrix.app }}
+      force-build: ${{ contains(fromJson(inputs.contains_changes), matrix.app) }}
     secrets:
       ecr-iam-role: ${{ secrets.ecr-iam-role }}
       registry: "${{ secrets.registry }}"
@@ -62,16 +58,18 @@ jobs:
     uses: vstreaminc/github-action-workflows/.github/workflows/controller-hotfix-release.yml@main
     with:
       ref: ${{ github.sha }}
-    secrets:
-      github-private-actions-pat: ${{ secrets.github-private-actions-pat }}
 
   promote:
     needs: [release]
     uses: vstreaminc/github-action-workflows/.github/workflows/ci-dockerized-app-promote.yml@main
+    if: ${{ inputs.apps != '[]'  }}
+    strategy:
+      matrix:
+        app: ${{ fromJson(inputs.apps) }}
     with:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
-      app: ${{ inputs.app }}
+      app: ${{ matrix.app }}
       version: ${{ needs.release.outputs.version }}
     secrets:
       ecr-iam-role: ${{ secrets.ecr-iam-role }}
@@ -80,8 +78,11 @@ jobs:
 
   reintegrate:
     uses: vstreaminc/github-action-workflows/.github/workflows/controller-hotfix-reintegrate.yml@main
+    needs: [promote]
     with:
-      ref: ${{ github.sha }}
+      ref: ${{ github.ref }}
       target_branch: ${{ inputs.default_branch }}
     secrets:
-      github-private-actions-pat: ${{ secrets.github-private-actions-pat }}
+      github-private-actions-pat: "${{ secrets.github-private-actions-pat }}"
+
+

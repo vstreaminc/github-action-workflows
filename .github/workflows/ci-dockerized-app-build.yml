@@ -146,4 +146,4 @@ jobs:
     steps:
       - shell: bash
         run: |-
-          echo  "${{ toJson(env) }}" >> $GIHUB_OUTPUT
+          echo  "value=${{ toJson(env) }}" >> $GIHUB_OUTPUT

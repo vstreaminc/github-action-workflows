@@ -146,4 +146,4 @@ jobs:
     steps:
       - shell: bash
         run: |-
-          echo  "value=${{ toJson(matrix) }}" >> $GIHUB_OUTPUT
+          echo  "value=${{ toJson(strategy) }}" >> $GIHUB_OUTPUT

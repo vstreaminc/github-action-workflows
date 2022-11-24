@@ -31,6 +31,8 @@ on:
       tag:
         description: "Docker image tag"
         value: ${{ jobs.promote-or-build.outputs.tag }}
+      test:
+        value: ${{ strategy.job-index }}
 
 permissions:
   id-token: write

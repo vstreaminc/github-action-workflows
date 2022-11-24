@@ -31,8 +31,6 @@ on:
       tag:
         description: "Docker image tag"
         value: ${{ jobs.promote-or-build.outputs.tag }}
-      test:
-        value: ${{ jobs.out.outputs.value }}
 
 permissions:
   id-token: write
@@ -140,10 +138,3 @@ jobs:
           service: app
           command: test/test.sh
           registry: ${{ secrets.registry }}
-
-  out:
-    runs-on: ["self-hosted"]
-    steps:
-      - shell: bash
-        run: |-
-          echo  "value=${{ toJson(strategy) }}" >> $GIHUB_OUTPUT

@@ -8,12 +8,12 @@ on:
       repository:
         required: true
         type: string
-      app:
+      apps:
         required: true
         type: string
-      force-build:
+      contains_changes:
         required: true
-        type: boolean
+        type: string
       spacelift-organization:
         description: "Spacelift organization"
         type: string
@@ -42,30 +42,46 @@ permissions:
 jobs:
   ci:
     uses: vstreaminc/github-action-workflows/.github/workflows/ci-dockerized-app-build.yml@main
+    if: ${{ inputs.apps != '[]'  }}
+    strategy:
+      matrix:
+        app: ${{ fromJson(inputs.apps) }}
     with:
       organization: ${{ inputs.organization }}
       repository: ${{ inputs.repository }}
-      app: ${{ inputs.app }}
-      force-build: ${{ inputs.force-build }}
+      app: ${{ matrix.app }}
+      force-build: ${{ contains(fromJson(inputs.contains_changes), matrix.app) }}
     secrets:
       ecr-iam-role: ${{ secrets.ecr-iam-role }}
       registry: "${{ secrets.registry }}"
       secret-outputs-passphrase: "${{ secrets.secret-outputs-passphrase }}"
 
-  cd:
-    uses: vstreaminc/github-action-workflows/.github/workflows/cd-ecs.yml@main
-    needs: [ ci ]
-    with:
-      image: ${{ needs.ci.outputs.image }}
-      tag: ${{ needs.ci.outputs.tag }}
-      repository: ${{ inputs.repository }}
-      app: ${{ inputs.app }}
-      environment: dev
-      spacelift-organization: ${{ inputs.spacelift-organization }}
-    secrets:
-      secret-outputs-passphrase: "${{ secrets.secret-outputs-passphrase }}"
-      github-private-actions-pat: "${{ secrets.github-private-actions-pat }}"
-      spacelift-api-key-id: "${{ secrets.spacelift-api-key-id }}"
-      spacelift-api-key-secret: "${{ secrets.spacelift-api-key-secret }}"
+  test:
+    runs-on: ["self-hosted"]
+    needs: [ci]
+    steps:
+      - shell: bash
+        run: |-
+          echo "${{ toJson(needs.ci.outputs) }}"
+
+#  cd:
+#    uses: vstreaminc/github-action-workflows/.github/workflows/cd-ecs.yml@main
+#    needs: [ ci ]
+#    if: ${{ inputs.apps != '[]'  }}
+#    strategy:
+#      matrix:
+#        app: ${{ fromJson(inputs.apps) }}
+#    with:
+#      image: ${{ needs.ci.outputs.image }}
+#      tag: ${{ needs.ci.outputs.tag }}
+#      repository: ${{ inputs.repository }}
+#      app: ${{ matrix.app }}
+#      environment: dev
+#      spacelift-organization: ${{ inputs.spacelift-organization }}
+#    secrets:
+#      secret-outputs-passphrase: "${{ secrets.secret-outputs-passphrase }}"
+#      github-private-actions-pat: "${{ secrets.github-private-actions-pat }}"
+#      spacelift-api-key-id: "${{ secrets.spacelift-api-key-id }}"
+#      spacelift-api-key-secret: "${{ secrets.spacelift-api-key-secret }}"
 
 

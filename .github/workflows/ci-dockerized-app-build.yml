@@ -32,7 +32,7 @@ on:
         description: "Docker image tag"
         value: ${{ jobs.promote-or-build.outputs.tag }}
       test:
-        value: ${{ matrix }}
+        value: ${{ env }}
 
 permissions:
   id-token: write

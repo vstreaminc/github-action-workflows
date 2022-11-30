@@ -51,6 +51,8 @@ jobs:
       repository: ${{ inputs.repository }}
       app: ${{ matrix.app }}
       force-build: ${{ contains(fromJson(inputs.contains_changes), matrix.app) }}
+      matrix-step-name: ci
+      matrix-key: ${{ matrix.app }}
     secrets:
       ecr-iam-role: ${{ secrets.ecr-iam-role }}
       registry: "${{ secrets.registry }}"

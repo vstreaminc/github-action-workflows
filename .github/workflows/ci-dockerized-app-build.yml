@@ -14,6 +14,12 @@ on:
       force-build:
         required: true
         type: boolean
+      matrix-step-name:
+        required: false
+        type: string
+      matrix-key:
+        required: false
+        type: string
     secrets:
       ecr-iam-role:
         description: "ECR IAM role arn"
@@ -116,10 +122,19 @@ jobs:
           op: encode
           in: ${{ steps.result.outputs.image }}
 
+      - uses: cloudposse/github-action-matrix-outputs-write@0.1.0
+        id: outputs
+        with:
+          matrix-step-name: ${{ inputs.matrix-step-name }}
+          matrix-key: ${{ inputs.matrix-key }}
+          outputs: |-
+            image: ${{ steps.image.outputs.out }}
+            tag: ${{ steps.result.outputs.tag }}
+
     outputs:
       builded: ${{ steps.result.outputs.builded }}
-      image: ${{ steps.image.outputs.out }}
-      tag: ${{ steps.result.outputs.tag }}
+      image: ${{ fromJson(steps.outputs.outputs.result).image }}
+      tag: ${{ fromJson(steps.outputs.outputs.result).tag }}
 
   test:
     runs-on: ["self-hosted"]
@@ -138,3 +153,4 @@ jobs:
           service: app
           command: test/test.sh
           registry: ${{ secrets.registry }}
+

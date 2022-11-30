@@ -128,8 +128,9 @@ jobs:
           matrix-step-name: ${{ inputs.matrix-step-name }}
           matrix-key: ${{ inputs.matrix-key }}
           outputs: |-
+            tag: ${{ steps.result.outputs.tag }}            
             image: ${{ steps.image.outputs.out }}
-            tag: ${{ steps.result.outputs.tag }}
+
 
     outputs:
       builded: ${{ steps.result.outputs.builded }}

@@ -122,7 +122,7 @@ jobs:
           op: encode
           in: ${{ steps.result.outputs.image }}
 
-      - uses: cloudposse/github-action-matrix-outputs-write@0.1.0
+      - uses: cloudposse/github-action-matrix-outputs-write@0.2.0
         id: outputs
         with:
           matrix-step-name: ${{ inputs.matrix-step-name }}

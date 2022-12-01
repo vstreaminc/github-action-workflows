@@ -58,6 +58,18 @@ jobs:
       registry: "${{ secrets.registry }}"
       secret-outputs-passphrase: "${{ secrets.secret-outputs-passphrase }}"
 
+  ci-outputs:
+    runs-on: ["self-hosted"]
+    needs: [ci]
+    steps:
+      - uses: ./
+        id: current
+        with:
+          matrix-step-name: ci
+    outputs:
+      image: ${{ toJson(fromJson(steps.current.outputs.result).image) }}
+      tags: ${{ toJson(fromJson(steps.current.outputs.result).tag) }}
+
   test:
     runs-on: ["self-hosted"]
     needs: [ci]
@@ -68,14 +80,14 @@ jobs:
 
   cd:
     uses: vstreaminc/github-action-workflows/.github/workflows/cd-ecs.yml@main
-    needs: [ ci, test ]
+    needs: [ ci-outputs, test ]
     if: ${{ inputs.apps != '[]'  }}
     strategy:
       matrix:
         app: ${{ fromJson(inputs.apps) }}
     with:
-      image: ${{ needs.ci.outputs.image }}
-      tag: ${{ needs.ci.outputs.tag }}
+      image: ${{ fromJson(needs.ci-outputs.outputs.image) }}
+      tag: ${{ fromJson(needs.ci-outputs.outputs.tag) }}
       repository: ${{ inputs.repository }}
       app: ${{ matrix.app }}
       environment: dev

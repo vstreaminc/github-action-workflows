@@ -68,7 +68,7 @@ jobs:
           matrix-step-name: ci
     outputs:
       image: ${{ toJson(fromJson(steps.current.outputs.result).image) }}
-      tags: ${{ toJson(fromJson(steps.current.outputs.result).tag) }}
+      tags: ${{ toJson(fromJson(steps.current.outputs.result).tags) }}
 
   test:
     runs-on: ["self-hosted"]
@@ -87,7 +87,7 @@ jobs:
         app: ${{ fromJson(inputs.apps) }}
     with:
       image: ${{ needs.ci-outputs.outputs.image }}
-      tag: ${{ needs.ci-outputs.outputs.tag }}
+      tag: ${{ needs.ci-outputs.outputs.tags }}
       repository: ${{ inputs.repository }}
       app: ${{ matrix.app }}
       environment: dev

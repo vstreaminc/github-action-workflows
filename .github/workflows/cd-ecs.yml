@@ -22,6 +22,12 @@ on:
         description: "Spacelift organization"
         type: string
         required: true
+      matrix-step-name:
+        required: false
+        type: string
+      matrix-key:
+        required: false
+        type: string
     secrets:
       secret-outputs-passphrase:
         description: "Passphrase for secret outputs"

@@ -66,24 +66,26 @@ jobs:
         run: |-
           echo "${{ toJson(needs.ci.outputs) }}"
 
-#  cd:
-#    uses: vstreaminc/github-action-workflows/.github/workflows/cd-ecs.yml@main
-#    needs: [ ci ]
-#    if: ${{ inputs.apps != '[]'  }}
-#    strategy:
-#      matrix:
-#        app: ${{ fromJson(inputs.apps) }}
-#    with:
-#      image: ${{ needs.ci.outputs.image }}
-#      tag: ${{ needs.ci.outputs.tag }}
-#      repository: ${{ inputs.repository }}
-#      app: ${{ matrix.app }}
-#      environment: dev
-#      spacelift-organization: ${{ inputs.spacelift-organization }}
-#    secrets:
-#      secret-outputs-passphrase: "${{ secrets.secret-outputs-passphrase }}"
-#      github-private-actions-pat: "${{ secrets.github-private-actions-pat }}"
-#      spacelift-api-key-id: "${{ secrets.spacelift-api-key-id }}"
-#      spacelift-api-key-secret: "${{ secrets.spacelift-api-key-secret }}"
+  cd:
+    uses: vstreaminc/github-action-workflows/.github/workflows/cd-ecs.yml@main
+    needs: [ ci, test ]
+    if: ${{ inputs.apps != '[]'  }}
+    strategy:
+      matrix:
+        app: ${{ fromJson(inputs.apps) }}
+    with:
+      image: ${{ needs.ci.outputs.image }}
+      tag: ${{ needs.ci.outputs.tag }}
+      repository: ${{ inputs.repository }}
+      app: ${{ matrix.app }}
+      environment: dev
+      spacelift-organization: ${{ inputs.spacelift-organization }}
+      matrix-step-name: cd
+      matrix-key: ${{ matrix.app }}
+    secrets:
+      secret-outputs-passphrase: "${{ secrets.secret-outputs-passphrase }}"
+      github-private-actions-pat: "${{ secrets.github-private-actions-pat }}"
+      spacelift-api-key-id: "${{ secrets.spacelift-api-key-id }}"
+      spacelift-api-key-secret: "${{ secrets.spacelift-api-key-secret }}"
 
 

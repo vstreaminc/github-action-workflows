@@ -131,7 +131,6 @@ jobs:
             image: ${{ steps.image.outputs.out }}
             tag: ${{ steps.result.outputs.tag }}            
 
-
     outputs:
       builded: ${{ steps.result.outputs.builded }}
       image: ${{ fromJson(steps.outputs.outputs.result).image }}

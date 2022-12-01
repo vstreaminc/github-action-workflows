@@ -86,8 +86,8 @@ jobs:
       matrix:
         app: ${{ fromJson(inputs.apps) }}
     with:
-      image: ${{ fromJson(needs.ci-outputs.outputs.image) }}
-      tag: ${{ fromJson(needs.ci-outputs.outputs.tag) }}
+      image: ${{ needs.ci-outputs.outputs.image }}
+      tag: ${{ needs.ci-outputs.outputs.tag }}
       repository: ${{ inputs.repository }}
       app: ${{ matrix.app }}
       environment: dev
